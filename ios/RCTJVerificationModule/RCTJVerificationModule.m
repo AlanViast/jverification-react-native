@@ -118,24 +118,27 @@
 
 #define UIColorFromRGBValue(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
-static double defaultTime  = 5000;
+static double defaultTime = 5000;
 
 @implementation RCTJVerificationModule
 
 RCT_EXPORT_MODULE(JVerificationModule);
 
-+ (BOOL)requiresMainQueueSetup
-{
++ (BOOL)requiresMainQueueSetup {
     return YES;
 }
 
-RCT_EXPORT_METHOD(setDebug: (BOOL *)enable)
+RCT_EXPORT_METHOD(setDebug
+: (BOOL *)enable)
 {
-    [JVERIFICATIONService setDebug: enable];
+    [JVERIFICATIONService setDebug:enable];
 }
 
-RCT_EXPORT_METHOD(setupWithConfig: (NSDictionary *)params
-                         callback: (RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(setupWithConfig
+: (NSDictionary *)
+params
+        callback
+: (RCTResponseSenderBlock)callback)
 {
     JVAuthConfig *config = [[JVAuthConfig alloc] init];
     if (params[@"appKey"]) {
@@ -150,10 +153,10 @@ RCT_EXPORT_METHOD(setupWithConfig: (NSDictionary *)params
     if (params[@"isProduction"]) {
         config.isProduction = [params[@"isProduction"] boolValue];
     }
-    if(params[@"time"]){
+    if (params[@"time"]) {
         config.timeout = [params[@"time"] doubleValue];
     }
-    if(callback != nil){
+    if (callback != nil) {
         config.authBlock = ^(NSDictionary *result) {
             NSNumber *code = result[@"code"];
             NSString *content = result[@"content"];
@@ -164,51 +167,62 @@ RCT_EXPORT_METHOD(setupWithConfig: (NSDictionary *)params
     [JVERIFICATIONService setupWithConfig:config];
 }
 
-RCT_EXPORT_METHOD(isSetupClient: (RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(isSetupClient
+: (RCTResponseSenderBlock)callback)
 {
     BOOL enable = [JVERIFICATIONService isSetupClient];
     NSDictionary *data = [self convertToResult:enable];
     callback(@[data]);
 }
 
-RCT_EXPORT_METHOD(checkVerifyEnable: (RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(checkVerifyEnable
+: (RCTResponseSenderBlock)callback)
 {
-   BOOL enable = [JVERIFICATIONService checkVerifyEnable];
-   NSDictionary *data = [self convertToResult:enable];
-   callback(@[data]);
+    BOOL enable = [JVERIFICATIONService checkVerifyEnable];
+    NSDictionary *data = [self convertToResult:enable];
+    callback(@[data]);
 }
 
-RCT_EXPORT_METHOD(getToken: (double)params
-                  callback: (RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(getToken
+: (double)
+params
+        callback
+: (RCTResponseSenderBlock)callback)
 {
-    NSTimeInterval time  = params;
+    NSTimeInterval time = params;
     [JVERIFICATIONService getToken:(time) completion:^(NSDictionary *result) {
-        NSNumber *code =  result[@"code"]?result[@"code"]:@(-1);
-        NSString *content = result[@"token"]?result[@"token"]:@"";
-        NSString *operator = result[@"operator"]?result[@"operator"]:@"";
+        NSNumber *code = result[@"code"] ? result[@"code"] : @(-1);
+        NSString *content = result[@"token"] ? result[@"token"] : @"";
+        NSString *operator = result[@"operator"] ? result[@"operator"] : @"";
         NSDictionary *data = [self convertToResult:code content:content operator:operator];
         callback(@[data]);
     }];
 }
 
-RCT_EXPORT_METHOD(preLogin: (double)params
-                  callback: (RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(preLogin
+: (double)
+params
+        callback
+: (RCTResponseSenderBlock)callback)
 {
-    NSTimeInterval time  = params;
+    NSTimeInterval time = params;
     [JVERIFICATIONService preLogin:time completion:^(NSDictionary *result) {
-        NSNumber *code =  result[@"code"]?result[@"code"]:@(-1);
-        NSString *message = result[@"message"]?result[@"message"]:@"";
+        NSNumber *code = result[@"code"] ? result[@"code"] : @(-1);
+        NSString *message = result[@"message"] ? result[@"message"] : @"";
         NSDictionary *data = [self convertToResult:code content:message];
         callback(@[data]);
     }];
 }
 
 RCT_EXPORT_METHOD(clearPreLoginCache)
-{
-    [JVERIFICATIONService clearPreLoginCache];
-}
+        {
+                [JVERIFICATIONService clearPreLoginCache];
+        }
 
-RCT_EXPORT_METHOD(customUIWithConfig: (NSDictionary *)configParams viewParams: (NSArray *)viewParams)
+RCT_EXPORT_METHOD(customUIWithConfig
+: (NSDictionary *)
+configParams viewParams
+: (NSArray *)viewParams)
 {
     JVUIConfig *config = [self convertToCinfig:configParams];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -217,8 +231,7 @@ RCT_EXPORT_METHOD(customUIWithConfig: (NSDictionary *)configParams viewParams: (
                 RCTRootView *rctView;
                 if (self.bridge) {
                     rctView = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:viewParams[i][CUSTOM_VIEW_NAME] initialProperties:nil];
-                }
-                else {
+                } else {
                     NSURL *jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
                     rctView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation moduleName:viewParams[i][CUSTOM_VIEW_NAME] initialProperties:nil launchOptions:nil];
                 }
@@ -241,7 +254,8 @@ RCT_EXPORT_METHOD(customUIWithConfig: (NSDictionary *)configParams viewParams: (
     });
 }
 
-RCT_EXPORT_METHOD(getAuthorizationWithController: (BOOL *)enable)
+RCT_EXPORT_METHOD(getAuthorizationWithController
+: (BOOL *)enable)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
@@ -252,17 +266,17 @@ RCT_EXPORT_METHOD(getAuthorizationWithController: (BOOL *)enable)
         [JVERIFICATIONService getAuthorizationWithController:topVC hide:enable completion:^(NSDictionary *result) {
             NSNumber *code = result[@"code"];
             NSString *content = @"";
-            if(result[@"content"]){
+            if (result[@"content"]) {
                 content = result[@"content"];
             }
-            if(result[@"loginToken"]){
+            if (result[@"loginToken"]) {
                 content = result[@"loginToken"];
             }
-            NSString *operator = result[@"operator"]?result[@"operator"]:@"";
+            NSString *operator = result[@"operator"] ? result[@"operator"] : @"";
             NSDictionary *responseData = [self convertToResult:code content:content operator:operator];
             [self sendLoginEvent:responseData];
-        } actionBlock:^(NSInteger type, NSString *content) {
-            NSNumber *code = [NSNumber numberWithLong: type];
+        }                                        actionBlock:^(NSInteger type, NSString *content) {
+            NSNumber *code = [NSNumber numberWithLong:type];
             NSDictionary *responseData = [self convertToResult:code content:content];
             [self sendLoginEvent:responseData];
         }];
@@ -270,47 +284,49 @@ RCT_EXPORT_METHOD(getAuthorizationWithController: (BOOL *)enable)
 }
 
 RCT_EXPORT_METHOD(dismissLoginController)
-{
-    [JVERIFICATIONService dismissLoginController];
-}
+        {
+                [JVERIFICATIONService dismissLoginController];
+        }
 
 // 获取验证码
-RCT_EXPORT_METHOD(getSmsCode: (NSDictionary *)params callback: (RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(getSmsCode
+: (NSDictionary *)
+params callback
+: (RCTResponseSenderBlock)callback)
 {
     NSString *phoneNumber = @"";
     NSString *signID = @"";
     NSString *templateID = @"";
 
-    if(params[@"phoneNumber"]){
+    if (params[@"phoneNumber"]) {
         phoneNumber = params[@"phoneNumber"];
     }
-    if(params[@"signID"]){
+    if (params[@"signID"]) {
         signID = params[@"signID"];
     }
-    if(params[@"templateID"]){
+    if (params[@"templateID"]) {
         templateID = params[@"templateID"];
     }
-    
-    [JVERIFICATIONService getSMSCode:(phoneNumber) templateID:templateID signID:signID completionHandler:^(NSDictionary * _Nonnull result) {
+
+    [JVERIFICATIONService getSMSCode:(phoneNumber) templateID:templateID signID:signID completionHandler:^(NSDictionary *_Nonnull result) {
         callback(@[result]);
     }];
 }
 
 // 设置前后两次获取验证码的时间间隔
-RCT_EXPORT_METHOD(setTimeWithConfig: (double)timeInter )
+RCT_EXPORT_METHOD(setTimeWithConfig
+: (double)timeInter )
 {
-    NSTimeInterval time  = timeInter;
+    NSTimeInterval time = timeInter;
     [JVERIFICATIONService setGetCodeInternal:time];
 }
 
 //事件处理
-- (NSArray<NSString *> *)supportedEvents
-{
+- (NSArray<NSString *> *)supportedEvents {
     return @[LOGIN_EVENT];
 }
 
-- (void)sendLoginEvent:(NSDictionary *)responseData
-{
+- (void)sendLoginEvent:(NSDictionary *)responseData {
     [self.bridge enqueueJSCall:@"RCTDeviceEventEmitter"
                         method:@"emit"
                           args:@[LOGIN_EVENT, responseData]
@@ -318,211 +334,207 @@ RCT_EXPORT_METHOD(setTimeWithConfig: (double)timeInter )
 }
 
 //结果返回
--(NSDictionary *)convertToResult:(BOOL)enable
-{
-    NSDictionary *responseData = @{@"enable":@(enable)};
+- (NSDictionary *)convertToResult:(BOOL)enable {
+    NSDictionary *responseData = @{@"enable": @(enable)};
     return responseData;
 }
 
--(NSDictionary *)convertToResult:(NSNumber *)code
-                         content:(NSString *)content
-{
-    NSDictionary *responseData = @{CODE:code,CONTENT:content};
+- (NSDictionary *)convertToResult:(NSNumber *)code
+                          content:(NSString *)content {
+    NSDictionary *responseData = @{CODE: code, CONTENT: content};
     return responseData;
 }
 
--(NSDictionary *)convertToResult:(NSNumber *)code
-                         content: (NSString *)content
-                        operator: (NSString *)operator
-{
-    NSDictionary *responseData = @{CODE:code,CONTENT:content,OPERATOR:operator};
+- (NSDictionary *)convertToResult:(NSNumber *)code
+                          content:(NSString *)content
+                         operator:(NSString *)operator {
+    NSDictionary *responseData = @{CODE: code, CONTENT: content, OPERATOR: operator};
     return responseData;
 }
 
--(JVUIConfig *)convertToCinfig: (NSDictionary *)configParams
-{
+- (JVUIConfig *)convertToCinfig:(NSDictionary *)configParams {
     JVUIConfig *config = [[JVUIConfig alloc] init];
     //背景图
-    if(configParams[BACK_GROUND_IMAGE]){
+    if (configParams[BACK_GROUND_IMAGE]) {
         config.authPageBackgroundImage = [self imageNamed:configParams[BACK_GROUND_IMAGE]];
     }
     //状态栏
-    if([configParams[STATUS_BAR_HIDDEN] isKindOfClass:[NSNumber class]]){
+    if ([configParams[STATUS_BAR_HIDDEN] isKindOfClass:[NSNumber class]]) {
         config.prefersStatusBarHidden = [configParams[STATUS_BAR_HIDDEN] boolValue];
     }
-    if(configParams[STATUS_BAR_MODE]){
+    if (configParams[STATUS_BAR_MODE]) {
         NSString *statusBarMode = configParams[STATUS_BAR_MODE];
-        if([statusBarMode isEqualToString:STATUS_BAR_MODE_LIGHT]){
+        if ([statusBarMode isEqualToString:STATUS_BAR_MODE_LIGHT]) {
             config.preferredStatusBarStyle = UIStatusBarStyleLightContent;
-        }else if([statusBarMode isEqualToString:STATUS_BAR_MODE_DARK]){
+        } else if ([statusBarMode isEqualToString:STATUS_BAR_MODE_DARK]) {
             if (@available(iOS 13.0, *)) {
                 config.preferredStatusBarStyle = UIStatusBarStyleDarkContent;
             }
-        }else{
+        } else {
             config.preferredStatusBarStyle = UIStatusBarStyleDefault;
         }
     }
     //导航栏
-    if([configParams[NAV_HIDDEN] isKindOfClass:[NSNumber class]]){
-         config.navCustom = [configParams[NAV_HIDDEN] boolValue];
+    if ([configParams[NAV_HIDDEN] isKindOfClass:[NSNumber class]]) {
+        config.navCustom = [configParams[NAV_HIDDEN] boolValue];
     }
-    if(configParams[NAV_COLOR]){
+    if (configParams[NAV_COLOR]) {
         NSNumber *color = configParams[NAV_COLOR];
-        UIColor *navColor =  UIColorFromRGBValue(color.integerValue);
+        UIColor *navColor = UIColorFromRGBValue(color.integerValue);
         config.navColor = navColor;
     }
     //导航栏标题
     NSString *navTitle = @"登录统一认证";
-    if(configParams[NAV_TITLE]){
+    if (configParams[NAV_TITLE]) {
         navTitle = configParams[NAV_TITLE];
     }
-    NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc]initWithString:navTitle];
-    if(configParams[NAV_TITLE_SIZE]){
+    NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:navTitle];
+    if (configParams[NAV_TITLE_SIZE]) {
         CGFloat navTitleSize = [configParams[NAV_TITLE_SIZE] floatValue];
         [attrStr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:navTitleSize] range:NSMakeRange(0, navTitle.length)];
     }
-    if(configParams[NAV_TITLE_COLOR]){
+    if (configParams[NAV_TITLE_COLOR]) {
         NSNumber *color = configParams[NAV_TITLE_COLOR];
-        UIColor *navTitleColor =  UIColorFromRGBValue(color.integerValue);
+        UIColor *navTitleColor = UIColorFromRGBValue(color.integerValue);
         [attrStr addAttribute:NSForegroundColorAttributeName value:navTitleColor range:NSMakeRange(0, navTitle.length)];
     }
     config.navText = attrStr;
     //导航栏返回按钮
-    if([configParams[NAV_RETURN_HIDDEN] isKindOfClass:[NSNumber class]]){
+    if ([configParams[NAV_RETURN_HIDDEN] isKindOfClass:[NSNumber class]]) {
         config.navReturnHidden = [configParams[NAV_RETURN_HIDDEN] boolValue];
     }
-    if(configParams[NAV_RETURN_IMAGE]){
+    if (configParams[NAV_RETURN_IMAGE]) {
         config.navReturnImg = [self imageNamed:configParams[NAV_RETURN_IMAGE]];
     }
     //logo
-    if([configParams[LOGO_HIDDEN] isKindOfClass:[NSNumber class]]){
+    if ([configParams[LOGO_HIDDEN] isKindOfClass:[NSNumber class]]) {
         config.logoHidden = [configParams[LOGO_HIDDEN] boolValue];
     }
-    if(configParams[LOGO_IMAGE]){
+    if (configParams[LOGO_IMAGE]) {
         config.logoImg = [self imageNamed:configParams[LOGO_IMAGE]];
     }
-    if(configParams[LOGO_X]&&configParams[LOGO_Y]&&configParams[LOGO_W]&&configParams[LOGO_H]){
+    if (configParams[LOGO_X] && configParams[LOGO_Y] && configParams[LOGO_W] && configParams[LOGO_H]) {
         CGFloat logoX = [configParams[LOGO_X] floatValue];
         CGFloat logoY = [configParams[LOGO_Y] floatValue];
         CGFloat logoW = [configParams[LOGO_W] floatValue];
         CGFloat logoH = [configParams[LOGO_H] floatValue];
         config.logoConstraints = [self layoutConstraint:(logoX) y:logoY w:logoW h:logoH];
     }
-    if(configParams[LOGO_CONSTRAINTS]){
-        NSArray *logoConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[LOGO_CONSTRAINTS]];
+    if (configParams[LOGO_CONSTRAINTS]) {
+        NSArray *logoConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[LOGO_CONSTRAINTS]];
         config.logoConstraints = logoConstraints;
     }
     //number
-    if(configParams[NUMBER_SIZE]){
+    if (configParams[NUMBER_SIZE]) {
         CGFloat numberSize = [configParams[NUMBER_SIZE] floatValue];
         config.numberFont = [UIFont systemFontOfSize:numberSize];
     }
-    if(configParams[NUMBER_COLOR]){
+    if (configParams[NUMBER_COLOR]) {
         NSNumber *color = configParams[NUMBER_COLOR];
-        UIColor *navTitleColor =  UIColorFromRGBValue(color.integerValue);
+        UIColor *navTitleColor = UIColorFromRGBValue(color.integerValue);
         config.numberColor = navTitleColor;
     }
-    if(configParams[NUMBER_X]&&configParams[NUMBER_Y]&&configParams[NUMBER_W]&&configParams[NUMBER_H]){
+    if (configParams[NUMBER_X] && configParams[NUMBER_Y] && configParams[NUMBER_W] && configParams[NUMBER_H]) {
         CGFloat numberX = [configParams[NUMBER_X] floatValue];
         CGFloat numberY = [configParams[NUMBER_Y] floatValue];
         CGFloat numberW = [configParams[NUMBER_W] floatValue];
         CGFloat numberH = [configParams[NUMBER_H] floatValue];
         config.numberConstraints = [self layoutConstraint:(numberX) y:numberY w:numberW h:numberH];
     }
-    if(configParams[NUMBER_CONSTRAINTS]){
-        NSArray *numberConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[NUMBER_CONSTRAINTS]];
+    if (configParams[NUMBER_CONSTRAINTS]) {
+        NSArray *numberConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[NUMBER_CONSTRAINTS]];
         config.numberConstraints = numberConstraints;
     }
     //slogan
-    if([configParams[SLOGAN_HIDDEN] isKindOfClass:[NSNumber class]]){
+    if ([configParams[SLOGAN_HIDDEN] isKindOfClass:[NSNumber class]]) {
         //todo
     }
-    if(configParams[SLOGAN_TEXT_SIZE]){
+    if (configParams[SLOGAN_TEXT_SIZE]) {
         CGFloat sloganTextSize = [configParams[SLOGAN_TEXT_SIZE] floatValue];
         config.sloganFont = [UIFont systemFontOfSize:sloganTextSize];
     }
-    if(configParams[SLOGAN_TEXT_COLOR]){
+    if (configParams[SLOGAN_TEXT_COLOR]) {
         NSNumber *color = configParams[SLOGAN_TEXT_COLOR];
-        UIColor *sloganTextColor =  UIColorFromRGBValue(color.integerValue);
+        UIColor *sloganTextColor = UIColorFromRGBValue(color.integerValue);
         config.sloganTextColor = sloganTextColor;
     }
-    if(configParams[SLOGAN_X]&&configParams[SLOGAN_Y]&&configParams[SLOGAN_W]&&configParams[SLOGAN_H]){
+    if (configParams[SLOGAN_X] && configParams[SLOGAN_Y] && configParams[SLOGAN_W] && configParams[SLOGAN_H]) {
         CGFloat sloganX = [configParams[SLOGAN_X] floatValue];
         CGFloat sloganY = [configParams[SLOGAN_Y] floatValue];
         CGFloat sloganW = [configParams[SLOGAN_W] floatValue];
         CGFloat sloganH = [configParams[SLOGAN_H] floatValue];
         config.sloganConstraints = [self layoutConstraint:(sloganX) y:sloganY w:sloganW h:sloganH];
     }
-    if(configParams[SLOGAN_CONSTRAINTS]){
-        NSArray *sloganConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[SLOGAN_CONSTRAINTS]];
+    if (configParams[SLOGAN_CONSTRAINTS]) {
+        NSArray *sloganConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[SLOGAN_CONSTRAINTS]];
         config.sloganConstraints = sloganConstraints;
     }
     //登录按钮
-    if(configParams[LOGIN_BTN_TEXT]){
-        config.logBtnText= configParams[LOGIN_BTN_TEXT];
+    if (configParams[LOGIN_BTN_TEXT]) {
+        config.logBtnText = configParams[LOGIN_BTN_TEXT];
     }
-    if(configParams[LOGIN_BTN_TEXT_SIZE]){
+    if (configParams[LOGIN_BTN_TEXT_SIZE]) {
         CGFloat loginBtnTextSize = [configParams[LOGIN_BTN_TEXT_SIZE] floatValue];
         config.logBtnFont = [UIFont systemFontOfSize:loginBtnTextSize];
     }
-    if(configParams[LOGIN_BTN_TEXT_COLOR]){
+    if (configParams[LOGIN_BTN_TEXT_COLOR]) {
         NSNumber *color = configParams[LOGIN_BTN_TEXT_COLOR];
-        UIColor *loginBtnTextColor =  UIColorFromRGBValue(color.integerValue);
+        UIColor *loginBtnTextColor = UIColorFromRGBValue(color.integerValue);
         config.logBtnTextColor = loginBtnTextColor;
     }
-    if(configParams[LOGIN_BTN_NORMAL_IMAGE] && configParams[LOGIN_BTN_DISABLED_IMAGE] && configParams[LOGIN_BTN_SELECTED_IMAGE]){
+    if (configParams[LOGIN_BTN_NORMAL_IMAGE] && configParams[LOGIN_BTN_DISABLED_IMAGE] && configParams[LOGIN_BTN_SELECTED_IMAGE]) {
         UIImage *loginBtnNormalImage = [self imageNamed:configParams[LOGIN_BTN_NORMAL_IMAGE]];
         UIImage *loginBtnDisabledImage = [self imageNamed:configParams[LOGIN_BTN_DISABLED_IMAGE]];
         UIImage *loginBtnSelectedImage = [self imageNamed:configParams[LOGIN_BTN_SELECTED_IMAGE]];
-        config.logBtnImgs = @[loginBtnNormalImage,loginBtnDisabledImage,loginBtnSelectedImage];
+        config.logBtnImgs = @[loginBtnNormalImage, loginBtnDisabledImage, loginBtnSelectedImage];
     }
-    if(configParams[LOGIN_BTN_X]&&configParams[LOGIN_BTN_Y]&&configParams[LOGIN_BTN_W]&&configParams[LOGIN_BTN_H]){
+    if (configParams[LOGIN_BTN_X] && configParams[LOGIN_BTN_Y] && configParams[LOGIN_BTN_W] && configParams[LOGIN_BTN_H]) {
         CGFloat loginBtnX = [configParams[LOGIN_BTN_X] floatValue];
         CGFloat loginBtnY = [configParams[LOGIN_BTN_Y] floatValue];
         CGFloat loginBtnW = [configParams[LOGIN_BTN_W] floatValue];
         CGFloat loginBtnH = [configParams[LOGIN_BTN_H] floatValue];
         config.logBtnConstraints = [self layoutConstraint:(loginBtnX) y:loginBtnY w:loginBtnW h:loginBtnH];
     }
-    if(configParams[LOGIN_BTN_CONSTRAINTS]){
-        NSArray *logBtnConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[LOGIN_BTN_CONSTRAINTS]];
+    if (configParams[LOGIN_BTN_CONSTRAINTS]) {
+        NSArray *logBtnConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[LOGIN_BTN_CONSTRAINTS]];
         config.logBtnConstraints = logBtnConstraints;
     }
-    if(configParams[PRIVACY_ONE]){
+    if (configParams[PRIVACY_ONE]) {
         NSArray *parivacyOne = configParams[PRIVACY_ONE];
         config.appPrivacyOne = parivacyOne;
     }
-    if(configParams[PRIVACY_TWO]){
+    if (configParams[PRIVACY_TWO]) {
         NSArray *parivacyTwo = configParams[PRIVACY_TWO];
         config.appPrivacyTwo = parivacyTwo;
     }
-    if(configParams[PRIVACY_COLOR]){
+    if (configParams[PRIVACY_COLOR]) {
         NSNumber *privacyNameColorNum = configParams[PRIVACY_COLOR][0];
         NSNumber *privacyUrlColorNum = configParams[PRIVACY_COLOR][1];
-        UIColor *parivacyNameColor =  UIColorFromRGBValue(privacyNameColorNum.integerValue);
-        UIColor *parivacyUrlColor =  UIColorFromRGBValue(privacyUrlColorNum.integerValue);
-        config.appPrivacyColor = @[parivacyNameColor,parivacyUrlColor];
+        UIColor *parivacyNameColor = UIColorFromRGBValue(privacyNameColorNum.integerValue);
+        UIColor *parivacyUrlColor = UIColorFromRGBValue(privacyUrlColorNum.integerValue);
+        config.appPrivacyColor = @[parivacyNameColor, parivacyUrlColor];
     }
-    if(configParams[PRIVACY_TEXT]){
+    if (configParams[PRIVACY_TEXT]) {
         NSArray *privacyText = configParams[PRIVACY_TEXT];
         config.privacyComponents = privacyText;
     }
-    if(configParams[PRIVACY_TEXT_SIZE]){
+    if (configParams[PRIVACY_TEXT_SIZE]) {
         config.privacyTextFontSize = [configParams[PRIVACY_TEXT_SIZE] floatValue];
     }
-    if(configParams[PRIVACY_TEXT_GRAVITY_MODE]){
+    if (configParams[PRIVACY_TEXT_GRAVITY_MODE]) {
         NSString *privacyTextGravityMode = configParams[PRIVACY_TEXT_GRAVITY_MODE];
-        if([privacyTextGravityMode isEqualToString:PRIVACY_TEXT_GRAVITY_LEFT]){
+        if ([privacyTextGravityMode isEqualToString:PRIVACY_TEXT_GRAVITY_LEFT]) {
             config.privacyTextAlignment = NSTextAlignmentLeft;
-        }else if([privacyTextGravityMode isEqualToString:PRIVACY_TEXT_GRAVITY_CENTER]){
+        } else if ([privacyTextGravityMode isEqualToString:PRIVACY_TEXT_GRAVITY_CENTER]) {
             config.privacyTextAlignment = NSTextAlignmentCenter;
-        }else{
+        } else {
             config.privacyTextAlignment = NSTextAlignmentLeft;
         }
     }
-    if([configParams[PRIVACY_BOOK_SYMBOL_ENABLE] isKindOfClass:[NSNumber class]]){
+    if ([configParams[PRIVACY_BOOK_SYMBOL_ENABLE] isKindOfClass:[NSNumber class]]) {
         config.privacyShowBookSymbol = [configParams[PRIVACY_BOOK_SYMBOL_ENABLE] boolValue];
     }
-    if(configParams[PRIVACY_X]&&configParams[PRIVACY_Y]&&configParams[PRIVACY_W]&&configParams[PRIVACY_H]){
+    if (configParams[PRIVACY_X] && configParams[PRIVACY_Y] && configParams[PRIVACY_W] && configParams[PRIVACY_H]) {
         CGFloat privacyX = [configParams[PRIVACY_X] floatValue];
         CGFloat privacyY = -[configParams[PRIVACY_Y] floatValue];
         CGFloat privacyW = [configParams[PRIVACY_W] floatValue];
@@ -531,23 +543,23 @@ RCT_EXPORT_METHOD(setTimeWithConfig: (double)timeInter )
         JVLayoutConstraint *constraintY = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemSuper attribute:NSLayoutAttributeBottom multiplier:1 constant:privacyY];
         JVLayoutConstraint *constraintW = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeWidth multiplier:1 constant:privacyW];
         JVLayoutConstraint *constraintH = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeHeight multiplier:1 constant:privacyH];
-        config.privacyConstraints = @[constraintX,constraintY,constraintW,constraintH];
+        config.privacyConstraints = @[constraintX, constraintY, constraintW, constraintH];
     }
-    if(configParams[PRIVACY_CONSTRAINTS]){
-        NSArray *privacyConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[PRIVACY_CONSTRAINTS]];
+    if (configParams[PRIVACY_CONSTRAINTS]) {
+        NSArray *privacyConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[PRIVACY_CONSTRAINTS]];
         config.privacyConstraints = privacyConstraints;
     }
     //checkbox
-    if([configParams[PRIVACY_CHECKBOX_HIDDEN] isKindOfClass:[NSNumber class]]){
+    if ([configParams[PRIVACY_CHECKBOX_HIDDEN] isKindOfClass:[NSNumber class]]) {
         config.checkViewHidden = [configParams[PRIVACY_CHECKBOX_HIDDEN] boolValue];
     }
-    if([configParams[PRIVACY_CHECK_ENABLE] isKindOfClass:[NSNumber class]]){
+    if ([configParams[PRIVACY_CHECK_ENABLE] isKindOfClass:[NSNumber class]]) {
         config.privacyState = [configParams[PRIVACY_CHECK_ENABLE] boolValue];
     }
-    if(configParams[PRIVACY_CHECKED_IMAGE]){
+    if (configParams[PRIVACY_CHECKED_IMAGE]) {
         config.checkedImg = [self imageNamed:configParams[PRIVACY_CHECKED_IMAGE]];
     }
-    if(configParams[PRIVACY_UNCHECKED_IMAGE]){
+    if (configParams[PRIVACY_UNCHECKED_IMAGE]) {
         config.uncheckedImg = [self imageNamed:configParams[PRIVACY_UNCHECKED_IMAGE]];
     }
     CGFloat privacyCheckboxW = config.uncheckedImg.size.width;
@@ -556,68 +568,67 @@ RCT_EXPORT_METHOD(setTimeWithConfig: (double)timeInter )
     JVLayoutConstraint *constraintY = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemPrivacy attribute:NSLayoutAttributeTop multiplier:1 constant:2];
     JVLayoutConstraint *constraintW = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeWidth multiplier:1 constant:privacyCheckboxW];
     JVLayoutConstraint *constraintH = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeHeight multiplier:1 constant:privacyCheckboxH];
-    config.checkViewConstraints = @[constraintX,constraintY,constraintW,constraintH];
+    config.checkViewConstraints = @[constraintX, constraintY, constraintW, constraintH];
 
-    if(configParams[CHECK_VIEW_CONSTRAINTS]){
-        NSArray *checkViewConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[CHECK_VIEW_CONSTRAINTS]];
+    if (configParams[CHECK_VIEW_CONSTRAINTS]) {
+        NSArray *checkViewConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[CHECK_VIEW_CONSTRAINTS]];
         config.checkViewConstraints = checkViewConstraints;
     }
     //协议
-    if(configParams[PRIVACY_WEB_NAV_COLOR]){
+    if (configParams[PRIVACY_WEB_NAV_COLOR]) {
         NSNumber *color = configParams[PRIVACY_WEB_NAV_COLOR];
-        UIColor *privacyWebNavColor =  UIColorFromRGBValue(color.integerValue);
+        UIColor *privacyWebNavColor = UIColorFromRGBValue(color.integerValue);
         config.agreementNavBackgroundColor = privacyWebNavColor;
     }
     NSString *privacyWebNavTitle = @"登录";
-    if(configParams[PRIVACY_WEB_NAV_TITLE]){
+    if (configParams[PRIVACY_WEB_NAV_TITLE]) {
         privacyWebNavTitle = configParams[PRIVACY_WEB_NAV_TITLE];
     }
     UIFont *privacyWebNavTitleSize = [UIFont systemFontOfSize:12];
-    if(configParams[PRIVACY_WEB_NAV_TITLE_SIZE]){
+    if (configParams[PRIVACY_WEB_NAV_TITLE_SIZE]) {
         CGFloat titleSize = [configParams[PRIVACY_WEB_NAV_TITLE_SIZE] floatValue];
         privacyWebNavTitleSize = [UIFont systemFontOfSize:titleSize];
     }
     UIColor *privacyWebNavTitleColor = [UIColor blackColor];
-    if(configParams[PRIVACY_WEB_NAV_TITLE_COLOR]){
+    if (configParams[PRIVACY_WEB_NAV_TITLE_COLOR]) {
         NSNumber *color = configParams[PRIVACY_WEB_NAV_TITLE_COLOR];
-        privacyWebNavTitleColor =  UIColorFromRGBValue(color.integerValue);
+        privacyWebNavTitleColor = UIColorFromRGBValue(color.integerValue);
     }
-    config.agreementNavText = [[NSAttributedString alloc]initWithString:privacyWebNavTitle attributes:@{NSForegroundColorAttributeName:privacyWebNavTitleColor, NSFontAttributeName:privacyWebNavTitleSize}];
-    if(configParams[PRIVACY_WEB_NAV_RETURN_IMAGE]){
+    config.agreementNavText = [[NSAttributedString alloc] initWithString:privacyWebNavTitle attributes:@{NSForegroundColorAttributeName: privacyWebNavTitleColor, NSFontAttributeName: privacyWebNavTitleSize}];
+    if (configParams[PRIVACY_WEB_NAV_RETURN_IMAGE]) {
         config.agreementNavReturnImage = [self imageNamed:configParams[PRIVACY_WEB_NAV_RETURN_IMAGE]];
     }
 
     // 弹窗
-    if([configParams[SHOW_WINDOW] isKindOfClass:[NSNumber class]]){
+    if ([configParams[SHOW_WINDOW] isKindOfClass:[NSNumber class]]) {
         config.showWindow = [configParams[SHOW_WINDOW] boolValue];
     }
-    if(configParams[WINDOW_BACKGROUND_IMAGE]){
+    if (configParams[WINDOW_BACKGROUND_IMAGE]) {
         config.windowBackgroundImage = [self imageNamed:configParams[WINDOW_BACKGROUND_IMAGE]];
     }
-    if(configParams[WINDOW_BACKGROUND_ALPHA]){
+    if (configParams[WINDOW_BACKGROUND_ALPHA]) {
         CGFloat backgroundAlpha = [configParams[WINDOW_BACKGROUND_ALPHA] floatValue];
         config.windowBackgroundAlpha = backgroundAlpha;
     }
 
-    if(configParams[WINDOW_CORNER_RADIUS]){
+    if (configParams[WINDOW_CORNER_RADIUS]) {
         CGFloat cornerRadius = [configParams[WINDOW_CORNER_RADIUS] floatValue];
         config.windowCornerRadius = cornerRadius;
     }
-    if(configParams[WINDOW_CONSTRAINTS]){
-        NSArray *windowConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_CONSTRAINTS]];
+    if (configParams[WINDOW_CONSTRAINTS]) {
+        NSArray *windowConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_CONSTRAINTS]];
         config.windowConstraints = windowConstraints;
     }
-    if(configParams[WINDOW_HORIZONTAL_CONSTRAINTS]){
-        NSArray *windowHorizontalConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_HORIZONTAL_CONSTRAINTS]];
+    if (configParams[WINDOW_HORIZONTAL_CONSTRAINTS]) {
+        NSArray *windowHorizontalConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_HORIZONTAL_CONSTRAINTS]];
         config.windowHorizontalConstraints = windowHorizontalConstraints;
     }
-    if (configParams[WINDOW_CLOSE_BTN_IMGS]){
+    if (configParams[WINDOW_CLOSE_BTN_IMGS]) {
         NSArray *imageNames = configParams[WINDOW_CLOSE_BTN_IMGS];
         if ([imageNames isKindOfClass:[NSArray class]]) {
             NSMutableArray *images = [NSMutableArray arrayWithCapacity:3];
-            for (int i = 0; i< imageNames.count; i++) {
-                NSString *bundlePath = [[NSBundle mainBundle] pathForResource:JVERIFICATION_RESOURCE ofType:@"bundle"];
-                UIImage *closeImage = [UIImage imageWithContentsOfFile:[bundlePath stringByAppendingPathComponent:[NSString stringWithFormat:@"/%@",imageNames[i]]]];
+            for (int i = 0; i < imageNames.count; i++) {
+                UIImage *closeImage = [self imageNamed:imageNames[(NSUInteger) i]];
                 if (closeImage) {
                     [images addObject:closeImage];
                 }
@@ -625,42 +636,52 @@ RCT_EXPORT_METHOD(setTimeWithConfig: (double)timeInter )
             }
         }
     }
-    if(configParams[WINDOW_CLOSE_BTN_CONSTRAINTS]){
-        NSArray *windowCloseBtnConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_CLOSE_BTN_CONSTRAINTS]];
+    if (configParams[WINDOW_CLOSE_BTN_CONSTRAINTS]) {
+        NSArray *windowCloseBtnConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_CLOSE_BTN_CONSTRAINTS]];
         config.windowCloseBtnConstraints = windowCloseBtnConstraints;
     }
-    if(configParams[WINDOW_CLOSE_BTN_HORIZONTAL_CONSTRAINTS]){
-        NSArray *windowCloseBtnHorizontalConstraints= [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_CLOSE_BTN_HORIZONTAL_CONSTRAINTS]];
+    if (configParams[WINDOW_CLOSE_BTN_HORIZONTAL_CONSTRAINTS]) {
+        NSArray *windowCloseBtnHorizontalConstraints = [RCTJVerificationModule configConstraintWithAttributes:configParams[WINDOW_CLOSE_BTN_HORIZONTAL_CONSTRAINTS]];
         config.windowCloseBtnHorizontalConstraints = windowCloseBtnHorizontalConstraints;
     }
     return config;
 }
 
 //获取UIImage
-- (UIImage *)imageNamed:(NSString *)imageName
-{
+- (UIImage *)imageNamed:(NSString *)imageName {
     if (![imageName isKindOfClass:[NSString class]]) {
         return nil;
     }
+
+
+    if ([imageName hasPrefix:@"http"]) {
+        // [url hasPrefix:@"data:image"]
+        // [UIImage imageWithData:(NSData dataWithContentsOfURL:source_url)]
+
+        UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[[NSURL alloc] initWithString:imageName]]];
+        return image;
+    }
+
+
     NSString *bundlePath = [[NSBundle mainBundle] pathForResource:JVERIFICATION_RESOURCE ofType:@"bundle"];
-    UIImage *image= [UIImage imageWithContentsOfFile:[bundlePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.png",imageName]]];
+    UIImage *image = [UIImage imageWithContentsOfFile:[bundlePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.png", imageName]]];
     return image;
 }
 
 //设置x,y,w,h
-- (NSArray <JVLayoutConstraint*>*)layoutConstraint:(CGFloat )x y:(CGFloat )y w:(CGFloat )w h:(CGFloat)h
-{
+- (NSArray <JVLayoutConstraint *> *)layoutConstraint:(CGFloat)x y:(CGFloat)y w:(CGFloat)w h:(CGFloat)h {
     JVLayoutConstraint *constraintX = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemSuper attribute:NSLayoutAttributeLeft multiplier:1 constant:x];
     JVLayoutConstraint *constraintY = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemSuper attribute:NSLayoutAttributeTop multiplier:1 constant:y];
     JVLayoutConstraint *constraintW = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeWidth multiplier:1 constant:w];
     JVLayoutConstraint *constraintH = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeHeight multiplier:1 constant:h];
-    return @[constraintX,constraintY,constraintW,constraintH];
+    return @[constraintX, constraintY, constraintW, constraintH];
 }
+
 // 设置宽高
-+ (NSArray*)configConstraintWithAttributes:(NSArray*)keys{
++ (NSArray *)configConstraintWithAttributes:(NSArray *)keys {
     NSAssert(keys.count == 4, @"你必须按照文档规则设置参数(centerX,centerY,width,height)");
     NSMutableArray *constraints = [NSMutableArray arrayWithCapacity:4];
-    NSArray* cons = keys;
+    NSArray *cons = keys;
     CGFloat centerX = [cons[0] floatValue];
     CGFloat centerY = [cons[1] floatValue];
     CGFloat w = [cons[2] floatValue];
@@ -669,7 +690,7 @@ RCT_EXPORT_METHOD(setTimeWithConfig: (double)timeInter )
     JVLayoutConstraint *constraintY = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemSuper attribute:NSLayoutAttributeCenterY multiplier:1 constant:centerY];
     JVLayoutConstraint *constraintW = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeWidth multiplier:1 constant:w];
     JVLayoutConstraint *constraintH = [JVLayoutConstraint constraintWithAttribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:JVLayoutItemNone attribute:NSLayoutAttributeHeight multiplier:1 constant:h];
-    [constraints addObjectsFromArray:@[constraintX,constraintY,constraintW,constraintH]];
+    [constraints addObjectsFromArray:@[constraintX, constraintY, constraintW, constraintH]];
     return constraints;
 }
 
