@@ -653,8 +653,10 @@ RCT_EXPORT_METHOD(setTimeWithConfig
         return nil;
     }
 
-
-    if ([imageName hasPrefix:@"http"]) {
+    if ([imageName hasPrefix:@"/"]) {
+        UIImage *image = [UIImage imageNamed:imageName];
+        return image;
+    } else if ([imageName hasPrefix:@"http"]) {
         // [url hasPrefix:@"data:image"]
         // [UIImage imageWithData:(NSData dataWithContentsOfURL:source_url)]
 
